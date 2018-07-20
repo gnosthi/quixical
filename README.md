@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.com/gnosthi/quixical.svg?branch=master)](https://travis-ci.com/gnosthi/quixical)
 # Quixical
 
 
