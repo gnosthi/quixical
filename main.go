@@ -10,6 +10,10 @@ import (
 func main() {
 
 	//Define flag for specifying csv file.
+	//TODO Extend to allow different file formats
+	//TODO Extend to add timer flag
+	//TODO Extend to add Randomizer flag
+	//TODO Add more quiz files covering various Columns, or extend csv to include column numbers.
 	csvFile := flag.String("csv", "problems/problems-all.csv", "a csv file in the format of 'question,answer'")
 	questions := flag.Int("n", 0, "number of questions to go through")
 	flag.Parse()
@@ -37,7 +41,12 @@ func main() {
 	wrong := 0
 	// Iterate over problem sets.
 	for i, p := range problems {
+		//TODO split into function that takes int for number of questions to ask
+		//TODO create function for exitNoError
+		//TODO Create question randomization
+		//TODO fmt.Scanf doesn't accept spaces. Use IO reader.
 		if *questions < i+1 {
+			fmt.Printf("You got %d out of %d correct", correct, *questions)
 			os.Exit(0)
 		}
 		fmt.Printf("Question: #%d: %s = ", i+1, p.question)
