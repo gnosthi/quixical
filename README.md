@@ -1,8 +1,8 @@
-[![Build Status](https://travis-ci.com/gnosthi/quixical.svg?branch=master)](https://travis-ci.com/gnosthi/quixical)
 # Quixical
 
+[![Build Status](https://travis-ci.com/gnosthi/quixical.svg?branch=master)](https://travis-ci.com/gnosthi/quixical)
 
-Quixical is a qaballah quiz application.
+A qabalistic quiz engine.
 
 ## Install
 
@@ -10,11 +10,8 @@ Quixical is a qaballah quiz application.
 ```bash
 $ go get github.com/gnosthi/quixical
 ```
-- WGET method
-```bash
-$ wget
-```
 
 ## Usage
 - "-h: display help"
 - "-csv: specify the problems file in csv format (question,answer)"
+- "-n: specify the number of questions to run through (0 = all questions)"
