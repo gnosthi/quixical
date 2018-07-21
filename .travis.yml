@@ -1,3 +1,14 @@
 language: go
 go:
   - "1.10"
+
+dist: trusty
+os:
+  - linux
+
+script:
+  - make travis
+  - make test
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -f coverage-all.out

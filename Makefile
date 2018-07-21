@@ -31,10 +31,10 @@ sysinfo:
 
 clean:
 	@echo -n ">> CLEAN"
-	@$(GO) clean -i ./..
+	@$(GO) clean -i
 
 $(QUIXICAL_OUTPUT): $(GOFILES_BUILD)
-	@echo -n ">> BUILD, version = $(QUIXICAL_VERSION/$(QUIXICAL_REVISION), output = $@)"
+	@echo -n ">> BUILD, version = $(QUIXICAL_VERSION)/$(QUIXICAL_REVISION), output = $@)"
 	@$(GO) build -o $@ $(BUILDFLAGS)
 	@printf '%s\n' '$(OK)'
 
@@ -74,3 +74,8 @@ release: goreleaser
 goreleaser: check-release-env travis clean
 	@echo ">> RELEASE, goreleaser"
 	@goreleaser
+
+docker-test:
+    docker build -t quixical:$(QUIXICAL_REVISION) .
+    docker run --rm quixical:$(QUIXICAL_REVISION) make test
+
