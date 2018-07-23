@@ -7,6 +7,7 @@ QUIXICAL_REVISION       := $(shell cat COMMIT 2>/dev/null || git rev-parse --sho
 QUIXICAL_OUTPUT         ?= quixical
 PWD                     := $(shell pwd)
 PREFIX                  ?= $(GOPATH)
+BUILDFLAGS              := -ldflags="-s -w -X main.version=$(QUIXICAL_VERSION) -X main.commit=$(QUIXICAL_REVISION) -X main.date=$(DATE)" -gcflags="-trimpath=$(GOPATH)" -asmflags="-trimpath=$(GOPATH)" -buildmode=pie
 BINDIR                  ?= $(PREFIX)/bin
 GO                      := go
 GOOS                    ?= $(shell go version | cut -d ' ' -f4 | cut -d '/' -f1)
@@ -37,7 +38,8 @@ clean:
 
 $(QUIXICAL_OUTPUT): $(GOFILES_BUILD)
     ## Removed $(QUIXICAL_REVISION) as it was causing weird issues.
-	@echo -n ">> BUILD, version = $(QUIXICAL_VERSION), output = $@)"
+    ## Readded $(QUIXICAL_REVISION) forgot to define $(BUILDFLAGS).
+	@echo -n ">> BUILD, version = $(QUIXICAL_VERSION)/$(QUIXICAL_REVISION), output = $@)"
 	@$(GO) build -o $@ $(BUILDFLAGS)
 	@printf '%s\n' '$(OK)'
 
