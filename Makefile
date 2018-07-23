@@ -1,3 +1,5 @@
+# QUIXICAL Makefile
+# default is make all.
 GOFILES_BUILD           := $(shell find . -type f -name '*.go' -not -name '*_test.go')
 DATE                    := $(shell date -u -d "@$(SOURCE_DATE_EPOCH)" '+%FT%T%z' 2>/dev/null || date -u '+%FT%T%z')
 QUIXICAL_VERSION        ?= $(shell cat VERSION)
@@ -34,7 +36,8 @@ clean:
 	@$(GO) clean -i
 
 $(QUIXICAL_OUTPUT): $(GOFILES_BUILD)
-	@echo -n ">> BUILD, version = $(QUIXICAL_VERSION)/$(QUIXICAL_REVISION), output = $@)"
+    ## Removed $(QUIXICAL_REVISION) as it was causing weird issues.
+	@echo -n ">> BUILD, version = $(QUIXICAL_VERSION), output = $@)"
 	@$(GO) build -o $@ $(BUILDFLAGS)
 	@printf '%s\n' '$(OK)'
 
