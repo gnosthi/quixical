@@ -34,12 +34,10 @@ sysinfo:
 
 clean:
 	@echo -n ">> CLEAN"
-	@$(GO) clean -i
+	@$(GO) clean -i ./
 
 $(QUIXICAL_OUTPUT): $(GOFILES_BUILD)
-    ## Removed $(QUIXICAL_REVISION) as it was causing weird issues.
-    ## Readded $(QUIXICAL_REVISION) forgot to define $(BUILDFLAGS).
-	@echo -n ">> BUILD, version = $(QUIXICAL_VERSION/$(QUIXICAL_REVISION)), output = $@)"
+	@echo -n ">> BUILD, version = $(QUIXICAL_VERSION/$(QUIXICAL_REVISION), output = $@)"
 	@$(GO) build -o $@ $(BUILDFLAGS)
 	@printf '%s\n' '$(OK)'
 
