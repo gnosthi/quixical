@@ -36,7 +36,7 @@ clean:
 	@rm -rf ./quixical-*
 
 $(QUIXICAL_OUTPUT): $(GOFILES_BUILD)
-	@echo -n ">> BUILD, version = $(QUIXICAL_VERSION/$(QUIXICAL_REVISION), output = $@)"
+	@echo -n ">> BUILD, version = $(QUIXICAL_VERSION)/$(QUIXICAL_REVISION), output = $@)"
 	@$(GO) build -o $@ $(BUILDFLAGS)
 	@printf '%s\n' '$(OK)'
 
