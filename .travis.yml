@@ -1,3 +1,19 @@
 language: go
 go:
   - "1.10"
+
+dist: trusty
+os:
+  - linux
+
+before_install:
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install git else brew install git || true; fi
+  - git config --global user.name nobody
+  - git config --global user.email nobody@nowhere.nosuchemail.com
+
+script:
+  - make travis
+  - make test
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -f coverage-all.out
