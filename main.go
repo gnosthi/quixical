@@ -18,36 +18,45 @@ func main() {
 	questions := flag.Int("n", 0, "number of questions to go through")
 	flag.Parse()
 
-	//Reference csv file by pointer
-	file, err := os.Open(*csvFile)
+	// Read in file and parse file and gather questions
+	lines, err := readFile(csvFile)
 	if err != nil {
-		errorExit("Failed to open file: " + *csvFile)
+		errorExit(fmt.Sprint(err))
 	}
 
-	//Read in csvFile.
-	r := csv.NewReader(file)
+	// Set limit defined by -n flag
+	if *questions == 0 {
+		*questions = len(lines)
+	}
+
+	// Create Quiz
+	quiz(lines, *questions)
+
+}
+
+// Read and Parse file
+func readFile(file *string) ([]problemSet, error) {
+	csvFile, err := os.Open(*file)
+	if err != nil {
+		return []problemSet{}, err
+	}
+
+	r := csv.NewReader(csvFile)
 	lines, err := r.ReadAll()
 	if err != nil {
-		errorExit("Failed to parse csv content in: " + *csvFile)
+		return []problemSet{}, err
 	}
 
-	// Load problem set and modify number of questions
 	problems := parseLines(lines)
-	if *questions == 0 {
-		*questions = len(problems)
-	}
+	return problems, nil
+}
 
+// Run through quiz
+func quiz(problems []problemSet, limit int) {
 	correct := 0
-	wrong := 0
-	// Iterate over problem sets.
 	for i, p := range problems {
-		//TODO split into function that takes int for number of questions to ask
-		//TODO create function for exitNoError
-		//TODO Create question randomization
-		//TODO fmt.Scanf doesn't accept spaces. Use IO reader.
-		if *questions < i+1 {
-			fmt.Printf("You got %d out of %d correct", correct, *questions)
-			os.Exit(0)
+		if limit < i+1 {
+			endGame(correct, limit)
 		}
 		fmt.Printf("Question: #%d: %s = ", i+1, p.question)
 		var answer string
@@ -56,12 +65,16 @@ func main() {
 			fmt.Println("Correct!")
 			correct++
 		} else {
-			fmt.Println("Wrong!")
+			fmt.Printf("I'm sorry, that is incorrect.\n")
 			fmt.Printf("The correct answer was %s\n", p.answer)
-			wrong++
 		}
 	}
-	fmt.Printf("You got %d out of %d correct!\n", correct, len(problems))
+}
+
+// End the game
+func endGame(correct, total int) {
+	fmt.Printf("You got %d out of %d correct!\n", correct, total)
+	os.Exit(0)
 }
 
 // Parse csv file lines into question and answer sets.
