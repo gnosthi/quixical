@@ -1,3 +1,23 @@
+
+n.n.n / 2018-07-25
+==================
+
+  * Added change history file.
+  * Merge pull request #10 from gnosthi/feature/testing
+  * Merge remote-tracking branch 'origin/feature/testing' into feature/testing
+  * This addresses issue #9: Created testing file and testing questions. This issue is resolved. Removed //TODOs for splitting out functions.
+  * fixed version in build to show revision
+  * added docker-builder.sh helper
+  * removed docker-test as it was causing problems. Will recreate later.
+  * small change
+  * small change
+  * Realised I hadn't installed git through travis which is causing the revision failure.
+  * Readded QUIXICAL_REVISION, had forgot to setup BUILDFLAGS.
+  * remove $(QUIXICAL_REVISION) reference in makefile Travis erroring.
+  * Added additional questions in problems.csv Added TODOs into main.go Added Docker Support Added appveyor Improved Travis support Added VERSION for Makefile Added support for CodeCov.io for when testing is improved.
+  * Merge branch 'develop' of https://github.com/gnosthi/quixical into develop
+  * added dist to gitignore
+  * Added additional questions in problems.csv Added TODOs into main.go
   * fixed version in build to show revision
   * added docker-builder.sh helper
   * removed docker-test as it was causing problems. Will recreate later.
