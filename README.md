@@ -15,3 +15,4 @@ $ go get github.com/gnosthi/quixical
 - "-h: display help"
 - "-csv: specify the problems file in csv format (question,answer)"
 - "-n: specify the number of questions to run through (0 = all questions)"
+- "-t: specify a time in seconds to complete a quiz (no time limit by default)"
