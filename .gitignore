@@ -1,2 +1,5 @@
+quixical
+coverage.out
+coverage-all.*
 .idea/
 dist/
