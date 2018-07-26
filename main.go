@@ -1,21 +1,26 @@
 package main
 
 import (
+	"bufio"
 	"encoding/csv"
 	"flag"
 	"fmt"
 	"os"
+	"strings"
+	"time"
 )
+
+var correct int
 
 func main() {
 
 	//Define flag for specifying csv file.
-	//TODO Extend to allow different file formats
-	//TODO Extend to add timer flag
+	//TODO Extend to allow different file formats - on hold.
 	//TODO Extend to add Randomizer flag
 	//TODO Add more quiz files covering various Columns, or extend csv to include column numbers.
-	csvFile := flag.String("csv", "problems/problems-all.csv", "a csv file in the format of 'question,answer'")
+	csvFile := flag.String("f", "problems/problems-all.csv", "a csv file in the format of 'question,answer'")
 	questions := flag.Int("n", 0, "number of questions to go through")
+	timeLimit := flag.Int("t", 0, "Use a timer for the quiz")
 	flag.Parse()
 
 	// Read in file and parse file and gather questions
@@ -30,7 +35,7 @@ func main() {
 	}
 
 	// Create Quiz
-	quiz(lines, *questions)
+	quiz(lines, *questions, timeLimit)
 
 }
 
@@ -40,6 +45,7 @@ func readFile(file *string) ([]problemSet, error) {
 	if err != nil {
 		return []problemSet{}, err
 	}
+	defer csvFile.Close()
 
 	r := csv.NewReader(csvFile)
 	lines, err := r.ReadAll()
@@ -51,29 +57,92 @@ func readFile(file *string) ([]problemSet, error) {
 	return problems, nil
 }
 
+// Create the timer for quiz
+func createTimer(timeLimit int) *time.Timer {
+	if timeLimit == 0 {
+		fmt.Printf("Running with no time limit\n")
+	} else {
+		timer := time.NewTimer(time.Duration(timeLimit) * time.Second)
+		return timer
+	}
+	return nil
+}
+
+// Ask questions and return whether the answer was correct or incorrect
+func quizQuestion(iteration int, question, answer string) string {
+
+	fmt.Printf("Question: #%d: %s = ", iteration, question)
+	// Create scanner for input
+	input := bufio.NewScanner(os.Stdin)
+
+	// Get user input.
+	input.Scan()
+	line := input.Text()
+	if strings.EqualFold(line, answer) {
+		return "Correct"
+	}
+	return "Wrong"
+	/*OLD METHOD
+	fmt.Scanf("%s\n", &input)
+	if input == answer {
+		return "Correct"
+	}
+	return "Wrong"
+	*/
+}
+
+//Print function for wrong answers
+func wrongAnswer(answer string) {
+	fmt.Printf("I'm sorry, that answer is wrong.\n")
+	fmt.Printf("The correct answer was %s\n", answer)
+}
+
+//Chech answer status and increment correct
+func checkAnswer(status, answer string) {
+	if status == "Correct" {
+		fmt.Println("Correct")
+		correct++
+	} else {
+		wrongAnswer(answer)
+	}
+}
+
 // Run through quiz
-func quiz(problems []problemSet, limit int) {
-	correct := 0
+func quiz(problems []problemSet, limit int, timeLimit *int) {
+	timer := createTimer(*timeLimit)
+	// Ignore timer if -t 0 is set.
+	if *timeLimit == 0 {
+		timer = nil
+	}
 	for i, p := range problems {
-		if limit < i+1 {
-			endGame(correct, limit)
-		}
-		fmt.Printf("Question: #%d: %s = ", i+1, p.question)
-		var answer string
-		fmt.Scanf("%s\n", &answer)
-		if answer == p.answer {
-			fmt.Println("Correct!")
-			correct++
+		if timer != nil {
+			// Setup channel for timed questions.
+			answerCh := make(chan string)
+			go func() {
+				q := quizQuestion(i+1, p.question, p.answer)
+				answerCh <- q
+			}()
+
+			select {
+			case <-timer.C:
+				endGame(correct, limit)
+			case q := <-answerCh:
+				checkAnswer(q, p.answer)
+			}
 		} else {
-			fmt.Printf("I'm sorry, that is incorrect.\n")
-			fmt.Printf("The correct answer was %s\n", p.answer)
+			if limit < i+1 {
+				endGame(correct, limit)
+			}
+			q := quizQuestion(i+1, p.question, p.answer)
+			checkAnswer(q, p.answer)
 		}
 	}
+	endGame(correct, limit)
 }
 
 // End the game
 func endGame(correct, total int) {
-	fmt.Printf("You got %d out of %d correct!\n", correct, total)
+	fmt.Printf("\nYou got %d out of %d correct!\n", correct, total)
 	os.Exit(0)
 }
 

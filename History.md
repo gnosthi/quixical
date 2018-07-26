@@ -1,5 +1,32 @@
 
-n.n.n / 2018-07-25
+0.1.0 / 2018-07-26
+==================
+  * Add support for multi-word answers
+  * Made answer matching case insensitive.
+  * Add timed quiz support.
+  * csvFile was not being closed with termination of application.
+  * Split out question handling into its own function
+  * SPlit out answer handling into its own function
+  * Split out wrong-answer handling into its own function
+  * Updated changelog with most recent changes
+  * Added change history file.
+  * Merge pull request #10 from gnosthi/feature/testing
+  * Merge remote-tracking branch 'origin/feature/testing' into feature/testing
+  * This addresses issue #9: Created testing file and testing questions. This issue is resolved. Removed //TODOs for splitting out functions.
+  * fixed version in build to show revision
+  * added docker-builder.sh helper
+  * removed docker-test as it was causing problems. Will recreate later.
+  * small change
+  * small change
+  * Realised I hadn't installed git through travis which is causing the revision failure.
+  * Readded QUIXICAL_REVISION, had forgot to setup BUILDFLAGS.
+  * remove $(QUIXICAL_REVISION) reference in makefile Travis erroring.
+  * Added additional questions in problems.csv Added TODOs into main.go Added Docker Support Added appveyor Improved Travis support Added VERSION for Makefile Added support for CodeCov.io for when testing is improved.
+  * Merge branch 'develop' of https://github.com/gnosthi/quixical into develop
+  * added dist to gitignore
+  * Added additional questions in problems.csv Added TODOs into main.go
+
+0.0.2-r66 / 2018-07-25
 ==================
 
   * Added change history file.
