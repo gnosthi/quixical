@@ -1,8 +1,9 @@
 GOFILES_BUILD           := $(shell find . -type f -name '*.go' -not -name '*_test.go')
 DATE                    := $(shell date -u -d "@$(SOURCE_DATE_EPOCH)" '+%FT%T%z' 2>/dev/null || date -u '+%FT%T%z')
 QUIXICAL_VERSION        ?= $(shell cat VERSION)
-QUIXICAL_REVISION       := $(shell cat COMMIT 2>/dev/null || git rev-parse --short=8 HEAD)
+QUIXICAL_REVISION       := $(shell git rev-parse --short=8 HEAD)
 QUIXICAL_OUTPUT         ?= quixical
+BUILDFLAGS              := -ldflags="-s -w -X main.version=$(QUIXICAL_VERSION) -X main.commit=$(QUIXICAL_REVISION) -X main.date=$(DATE)" -gcflags="-trimpath=$(GOPATH)" -asmflags="-trimpath=$(GOPATH)" -buildmode=pie
 PWD                     := $(shell pwd)
 PREFIX                  ?= $(GOPATH)
 BINDIR                  ?= $(PREFIX)/bin
@@ -31,10 +32,11 @@ sysinfo:
 
 clean:
 	@echo -n ">> CLEAN"
-	@$(GO) clean -i ./..
+	@$(GO) clean -i ./
+	@rm -rf ./quixical-*
 
 $(QUIXICAL_OUTPUT): $(GOFILES_BUILD)
-	@echo -n ">> BUILD, version = $(QUIXICAL_VERSION/$(QUIXICAL_REVISION), output = $@)"
+	@echo -n ">> BUILD, version = $(QUIXICAL_VERSION)/$(QUIXICAL_REVISION), output = $@)"
 	@$(GO) build -o $@ $(BUILDFLAGS)
 	@printf '%s\n' '$(OK)'
 

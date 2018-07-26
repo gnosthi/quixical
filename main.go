@@ -1,58 +1,149 @@
 package main
 
 import (
+	"bufio"
 	"encoding/csv"
 	"flag"
 	"fmt"
 	"os"
+	"strings"
+	"time"
 )
+
+var correct int
 
 func main() {
 
 	//Define flag for specifying csv file.
-	csvFile := flag.String("csv", "problems/problems-all.csv", "a csv file in the format of 'question,answer'")
+	//TODO Extend to allow different file formats - on hold.
+	//TODO Extend to add Randomizer flag
+	//TODO Add more quiz files covering various Columns, or extend csv to include column numbers.
+	csvFile := flag.String("f", "problems/problems-all.csv", "a csv file in the format of 'question,answer'")
 	questions := flag.Int("n", 0, "number of questions to go through")
+	timeLimit := flag.Int("t", 0, "Use a timer for the quiz")
 	flag.Parse()
 
-	//Reference csv file by pointer
-	file, err := os.Open(*csvFile)
+	// Read in file and parse file and gather questions
+	lines, err := readFile(csvFile)
 	if err != nil {
-		errorExit("Failed to open file: " + *csvFile)
+		errorExit(fmt.Sprint(err))
 	}
 
-	//Read in csvFile.
-	r := csv.NewReader(file)
+	// Set limit defined by -n flag
+	if *questions == 0 {
+		*questions = len(lines)
+	}
+
+	// Create Quiz
+	quiz(lines, *questions, timeLimit)
+
+}
+
+// Read and Parse file
+func readFile(file *string) ([]problemSet, error) {
+	csvFile, err := os.Open(*file)
+	if err != nil {
+		return []problemSet{}, err
+	}
+	defer csvFile.Close()
+
+	r := csv.NewReader(csvFile)
 	lines, err := r.ReadAll()
 	if err != nil {
-		errorExit("Failed to parse csv content in: " + *csvFile)
+		return []problemSet{}, err
 	}
 
-	// Load problem set and modify number of questions
 	problems := parseLines(lines)
-	if *questions == 0 {
-		*questions = len(problems)
-	}
+	return problems, nil
+}
 
-	correct := 0
-	wrong := 0
-	// Iterate over problem sets.
+// Create the timer for quiz
+func createTimer(timeLimit int) *time.Timer {
+	if timeLimit == 0 {
+		fmt.Printf("Running with no time limit\n")
+	} else {
+		timer := time.NewTimer(time.Duration(timeLimit) * time.Second)
+		return timer
+	}
+	return nil
+}
+
+// Ask questions and return whether the answer was correct or incorrect
+func quizQuestion(iteration int, question, answer string) string {
+
+	fmt.Printf("Question: #%d: %s = ", iteration, question)
+	// Create scanner for input
+	input := bufio.NewScanner(os.Stdin)
+
+	// Get user input.
+	input.Scan()
+	line := input.Text()
+	if strings.EqualFold(line, answer) {
+		return "Correct"
+	}
+	return "Wrong"
+	/*OLD METHOD
+	fmt.Scanf("%s\n", &input)
+	if input == answer {
+		return "Correct"
+	}
+	return "Wrong"
+	*/
+}
+
+//Print function for wrong answers
+func wrongAnswer(answer string) {
+	fmt.Printf("I'm sorry, that answer is wrong.\n")
+	fmt.Printf("The correct answer was %s\n", answer)
+}
+
+//Chech answer status and increment correct
+func checkAnswer(status, answer string) {
+	if status == "Correct" {
+		fmt.Println("Correct")
+		correct++
+	} else {
+		wrongAnswer(answer)
+	}
+}
+
+// Run through quiz
+func quiz(problems []problemSet, limit int, timeLimit *int) {
+	timer := createTimer(*timeLimit)
+	// Ignore timer if -t 0 is set.
+	if *timeLimit == 0 {
+		timer = nil
+	}
 	for i, p := range problems {
-		if *questions < i+1 {
-			os.Exit(0)
-		}
-		fmt.Printf("Question: #%d: %s = ", i+1, p.question)
-		var answer string
-		fmt.Scanf("%s\n", &answer)
-		if answer == p.answer {
-			fmt.Println("Correct!")
-			correct++
+		if timer != nil {
+			// Setup channel for timed questions.
+			answerCh := make(chan string)
+			go func() {
+				q := quizQuestion(i+1, p.question, p.answer)
+				answerCh <- q
+			}()
+
+			select {
+			case <-timer.C:
+				endGame(correct, limit)
+			case q := <-answerCh:
+				checkAnswer(q, p.answer)
+			}
 		} else {
-			fmt.Println("Wrong!")
-			fmt.Printf("The correct answer was %s\n", p.answer)
-			wrong++
+			if limit < i+1 {
+				endGame(correct, limit)
+			}
+			q := quizQuestion(i+1, p.question, p.answer)
+			checkAnswer(q, p.answer)
 		}
 	}
-	fmt.Printf("You got %d out of %d correct!\n", correct, len(problems))
+	endGame(correct, limit)
+}
+
+// End the game
+func endGame(correct, total int) {
+	fmt.Printf("\nYou got %d out of %d correct!\n", correct, total)
+	os.Exit(0)
 }
 
 // Parse csv file lines into question and answer sets.
