@@ -1,3 +1,8 @@
+
+0.1.0-r1 / 2018-07-26
+==================
+
+  * Added -t flag to readme
 0.1.0 / 2018-07-26
 ==================
   * Add support for multi-word answers
