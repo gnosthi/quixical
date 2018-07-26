@@ -1,8 +1,13 @@
 
 0.1.0 / 2018-07-26
 ==================
-
-  * Added features: Add support for multi-word answers Made answer matching case insensitive. Add timed quiz support.
+  * Add support for multi-word answers
+  * Made answer matching case insensitive.
+  * Add timed quiz support.
+  * csvFile was not being closed with termination of application.
+  * Split out question handling into its own function
+  * SPlit out answer handling into its own function
+  * Split out wrong-answer handling into its own function
   * Updated changelog with most recent changes
   * Added change history file.
   * Merge pull request #10 from gnosthi/feature/testing
