@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 	"time"
+    "math/rand"
 )
 
 var correct int
@@ -21,11 +22,13 @@ func main() {
 	csvFile := flag.String("f", "problems/problems-all.csv", "a csv file in the format of 'question,answer'")
 	questions := flag.Int("n", 0, "number of questions to go through")
 	timeLimit := flag.Int("t", 0, "Use a timer for the quiz")
+    doRandom := flag.Bool("r", true, "Randomize the questions. Default is true")
 	flag.Parse()
 
 	// Read in file and parse file and gather questions
-	lines, err := readFile(csvFile)
-	if err != nil {
+	lines, err := readFile(csvFile, *doRandom)
+
+    if err != nil {
 		errorExit(fmt.Sprint(err))
 	}
 
@@ -39,8 +42,20 @@ func main() {
 
 }
 
+func shuffle(lines []problemSet) []problemSet {
+    r := rand.New(rand.NewSource(time.Now().Unix()))
+    ret := make([]problemSet, len(lines))
+    n := len(lines)
+    for i := 0; i < n; i++ {
+        randIndex := r.Intn(len(lines))
+        ret[i] = lines[randIndex]
+        lines = append(lines[:randIndex], lines[randIndex+1:]...)
+    }
+    return ret
+}
+
 // Read and Parse file
-func readFile(file *string) ([]problemSet, error) {
+func readFile(file *string, doRandom bool) ([]problemSet, error) {
 	csvFile, err := os.Open(*file)
 	if err != nil {
 		return []problemSet{}, err
@@ -52,8 +67,7 @@ func readFile(file *string) ([]problemSet, error) {
 	if err != nil {
 		return []problemSet{}, err
 	}
-
-	problems := parseLines(lines)
+	problems := parseLines(lines, doRandom)
 	return problems, nil
 }
 
@@ -147,7 +161,7 @@ func endGame(correct, total int) {
 }
 
 // Parse csv file lines into question and answer sets.
-func parseLines(lines [][]string) []problemSet {
+func parseLines(lines [][]string, doRandom bool) []problemSet {
 	ret := make([]problemSet, len(lines))
 	for i, line := range lines {
 		ret[i] = problemSet{
@@ -155,6 +169,10 @@ func parseLines(lines [][]string) []problemSet {
 			answer:   line[1],
 		}
 	}
+    if doRandom == true {
+        ret = shuffle(ret)
+        return ret
+    }
 	return ret
 }
 
